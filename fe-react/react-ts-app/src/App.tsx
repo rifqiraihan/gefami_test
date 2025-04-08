@@ -3,9 +3,10 @@ import axios from 'axios';
 import './App.css'
 
 
-interface CustomData {
+interface Student {
   id: number;
   name: string;
+  major: string;
 }
 
 interface Post {
@@ -16,10 +17,15 @@ interface Post {
 }
 
 const App: React.FC = () => {
-  const [data, setData] = useState<CustomData[]>([
-    { id: 1, name: 'Item Pertama' },
+  const [students, setStudents] = useState<Student[]>([
+    { id: 1, name: 'Rifqi', major: 'Informatika' },
+    { id: 2, name: 'Alya', major: 'Sistem Informasi' },
   ]);
-  const [labelText, setLabelText] = useState(data[0].name);
+
+  const [labelText, setLabelText] = useState(students[0].name);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -27,7 +33,9 @@ const App: React.FC = () => {
   const [password, setPassword] = useState('');
 
   const changeLabel = () => {
-    setLabelText('Item Sudah Diubah');
+    const nextIndex = (currentIndex + 1) % students.length;
+    setLabelText(students[nextIndex].name);
+    setCurrentIndex(nextIndex);
   };
 
   const fetchPosts = async () => {
@@ -83,58 +91,84 @@ const hashString = async () => {
 
 
   return (
-<div className="container">
-{!loggedIn ? (
-    <div>
-      <input placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin} className="button green">Login</button>
-    </div>
-  ) : (
-    <div>
-      <p className="welcome">Selamat Datang, {localStorage.getItem('username')}</p>
-      <button onClick={handleLogout} className="button gray">Logout</button>
-    </div>
-  )}
-  <h2 className="label">Label: {labelText}</h2>
-  <button onClick={changeLabel} className="button">Ubah Label</button>
-
-  <hr />
-
-  <h2 className="label">Data Post (Max 10)</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Body</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {posts.map((post) => (
-        <tr key={post.id}>
-          <td>{post.id}</td>
-          <td>{post.title}</td>
-          <td>{post.body}</td>
-          <td>
-            <button onClick={() => deletePost(post.id)} className="button red">
-              Hapus
+      <div className="container">
+      {!loggedIn ? (
+        <div>
+          <h2 className="label">Login</h2>
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div>
+            <button onClick={handleLogin} className="button green">
+              Login
             </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p className="welcome">
+            Selamat Datang, <strong>{localStorage.getItem('username')}</strong>
+          </p>
+          <button onClick={handleLogout} className="button gray">
+            Logout
+          </button>
+        </div>
+      )}
 
-  <button onClick={() => deleteKeyFromPost('body')} className="button yellow">
-    Hapus Key 'body'
-  </button>
+      <hr />
 
-  <hr />
+      <div>
+        <h2 className="label">Label: {labelText}</h2>
+        <button onClick={changeLabel} className="button">
+          Ubah Label
+        </button>
+      </div>
 
-  
-</div>
+      <hr />
+
+      <div>
+    <h2 className="label">Data Post (Max 10)</h2>
+    <div className="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Body</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {posts.map((post) => (
+            <tr key={post.id}>
+              <td>{post.id}</td>
+              <td>{post.title}</td>
+              <td>{post.body}</td>
+              <td>
+                <button onClick={() => deletePost(post.id)} className="button red">
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <button onClick={() => deleteKeyFromPost('body')} className="button yellow">
+      Hapus Key 'body'
+    </button>
+  </div>
+
+    </div>
   );
 };
 
